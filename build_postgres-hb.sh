@@ -7,4 +7,9 @@ DIR=./postgres-hb
 REPO=gp3t1/postgres-hb
 TAG="$( cat ./.version )-$( egrep '^FROM.*' $DIR/Dockerfile | awk -F ':' '{ print $2; }' )"
 
-docker build -q "$*" -t "$REPO:$TAG" "$DIR" && echo "built $REPO:$TAG"
+if docker build -q "$@" -t "$REPO:$TAG" "$DIR"; then
+	echo "built $REPO:$TAG"
+	exit 0
+fi
+
+exit 1

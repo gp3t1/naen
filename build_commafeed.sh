@@ -7,4 +7,8 @@ DIR=./commafeed
 REPO=gp3t1/commafeed
 TAG="$( cat ./.version )-$( egrep '^ENV COMMAFEED_VERSION.*' $DIR/Dockerfile | awk -F ' ' '{ print $3; }' )"
 
-docker build -q "$*" -t "$REPO:$TAG" "$DIR" && echo "built $REPO:$TAG"
+if docker build -q "$@" -t "$REPO:$TAG" "$DIR"; then
+	echo "built $REPO:$TAG"
+	exit 0
+fi
+exit 1
