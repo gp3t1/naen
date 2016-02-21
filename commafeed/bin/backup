@@ -1,0 +1,8 @@
+#!/bin/bash
+
+v_backups=/backups
+CFG_DIR=/etc/commafeed
+DATE=$(date +%Y%m%d-%H%M%S)
+
+cd /
+tar -zcf "${v_backups}/${DATE}_commafeed.tar.gz" "$CFG_DIR"
