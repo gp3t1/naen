@@ -20,9 +20,9 @@ RUN mkdir -p 												/var/lib/postgresql/data/pg_wal_archive /docker-entrypo
 		&& sed -i '/^[\n|\t]*exec.*$/d' docker-entrypoint.sh \
 		&& mv docker-entrypoint.sh check-initdb.sh
 		
-COPY docker-entrypoint.sh 						/
-COPY post-initdb/00_config-cluster.sh /post-initdb/
-COPY bin/hot_backup 									/usr/local/bin/hot_backup
+COPY docker-entrypoint.sh 	/
+COPY post-initdb/* 					/post-initdb/
+COPY bin/* 									/usr/local/bin/
 
 WORKDIR $DATA_VOL
 
