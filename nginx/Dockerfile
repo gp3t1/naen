@@ -6,7 +6,7 @@ RUN rm /etc/nginx/conf.d/default.conf && \
 		mv /etc/nginx/nginx.conf /etc/nginx/nginx_original.conf.bak
 
 # explicitly set user/group IDs
-RUN groupadd -r nginx --gid=999 && useradd -r -g nginx --uid=999 nginx
+# RUN groupadd -r nginx --gid=999 && useradd -r -g nginx --uid=999 nginx
 RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4
 
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates wget && rm -rf /var/lib/apt/lists/* \
