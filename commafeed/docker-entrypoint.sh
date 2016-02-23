@@ -1,28 +1,36 @@
 #!/bin/bash
 
-CFG_DIR=/etc/commafeed
-CFG_NAME=commafeed.yml
-CFG_FILE=$CFG_DIR/$CFG_NAME
+APP_DIR="/opt/commafeed"
+APP_FILE="$APP_DIR/commafeed.jar"
+CFG_DIR="/etc/commafeed"
+CFG_NAME="commafeed.yml"
+CFG_FILE="$CFG_DIR/$CFG_NAME"
 
-chmod -R 600 "$CFG_DIR"
-chown -R commafeed.commafeed "$CFG_DIR"
 
 function setConfig {
-	[[ ! -f $CFG_FILE ]] && cp "/opt/commafeed/templates/$CFG_NAME.template" "$CFG_FILE" && chmod -R 600 "$CFG_DIR"
-  
-  rm "$CFG_DIR/*.bak"
-  sed -i.bak "	s|publicUrl:(.*)|publicUrl: ${PUBLIC_URL}|
-								s|driverClass:(.*)|driverClass: org.postgresql.Driver|
-								s|url:(.*)|url: ${PG_URL}|
-								s|user:(.*)|user: ${USER}|
-								s|password:(.*)|password: ${PASSWORD}|" "$CFG_FILE"
+  if [[ ! -f $CFG_FILE ]] ;then
+  	rm "$CFG_DIR/*.bak"
+  	sed "	s|publicUrl:.*$|publicUrl: ${PUBLIC_URL}|
+					s|driverClass:.*$|driverClass: org.postgresql.Driver|
+					s|url:.*$|url: ${DB_URL}|
+					s|user:.*$|user: ${USER}|
+					s|password:.*$|password: ${PASSWORD}|" "/opt/commafeed/templates/$CFG_NAME.template" > "$CFG_FILE"
+		echo "Configuration generated in $CFG_FILE"
+	fi
+}
+
+function setRights {
+	chmod 600 "$CFG_FILE"
+	chmod 700 "$APP_FILE"
+	chown commafeed:commafeed "$CFG_FILE" "$APP_FILE"
 }
 
 case $1 in
 	commafeed )
-		[[ ! -f $CFG_FILE ]] && setConfig
+		setConfig
+		setRights
 		echo "Starting commafeed..."
-		gosu commafeed java -Djava.net.preferIPv4Stack=true -jar /opt/commafeed/commafeed.jar server "$CFG_FILE"
+		exec gosu commafeed java -Djava.net.preferIPv4Stack=true -jar "$APP_FILE" server "$CFG_FILE"
 		;;
 	*)
 		exit 1

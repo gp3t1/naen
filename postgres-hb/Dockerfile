@@ -16,7 +16,7 @@ ENV WAL_DIR 			/var/lib/postgresql/data/pg_wal_archive
 
 RUN mkdir -p 												/var/lib/postgresql/data/pg_wal_archive /docker-entrypoint-initdb.d /post-initdb \
 		&& chmod -R 700 								/var/lib/postgresql/data/pg_wal_archive /docker-entrypoint-initdb.d /post-initdb \
-		&& chown -R postgres.postgres 	/var/lib/postgresql/data/pg_wal_archive /docker-entrypoint-initdb.d /post-initdb \
+		&& chown -R postgres:postgres 	/var/lib/postgresql/data/pg_wal_archive /docker-entrypoint-initdb.d /post-initdb \
 		&& sed -i '/^[\n|\t]*exec.*$/d' docker-entrypoint.sh \
 		&& mv docker-entrypoint.sh check-initdb.sh
 		

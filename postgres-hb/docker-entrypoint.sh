@@ -102,7 +102,7 @@ function getRestorationDate {
 function set_folders {
 	mkdir -p "$PGDATA" "$WAL_DIR"
 	chmod -R 700 "$PGDATA" "$WAL_DIR"
-	chown -R postgres.postgres "$PGDATA" "$WAL_DIR"
+	chown -R postgres:postgres "$PGDATA" "$WAL_DIR"
 }
 
 function main {
@@ -115,8 +115,10 @@ function main {
 				#Configuration of Timezone and locale BEFORE initdb
 				setLocaleAndTZ
 				#Move the cluster configuration script (WAL archiving...) to $v_entrypts
-				mv /post-initdb/00_config-cluster.sh "$v_entrypts/00_config-cluster.sh" && \
-					echo "$v_entrypts/00_config-cluster.sh will be run after initdb"
+				mv /post-initdb/00_config-cluster.sh "$v_entrypts/00_config-cluster.sh" \
+					&& chmod 700 "$v_entrypts/00_config-cluster.sh" \
+					&& chown postgres:postgres "$v_entrypts/00_config-cluster.sh" \
+					&& echo "$v_entrypts/00_config-cluster.sh will be run after initdb"
 			fi
 			
 			echo "Using original docker-entrypoint for standard settings"

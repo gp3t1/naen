@@ -28,7 +28,7 @@ function test_nginx {
 
 function run_nginx {
 	echo "Starting nginx..."
-	gosu nginx nginx -c ${CFG_FILE} -g "daemon off;pid $PID;"
+	exec gosu nginx nginx -c ${CFG_FILE} -g "daemon off;pid $PID;"
 	exit $?
 }
 
@@ -42,8 +42,8 @@ function main {
 		exit 1
 	fi
 
-	chmod -R 600				 /etc/nginx	
-	chown -R nginx:nginx /etc/nginx
+	chmod 600				 	$CFG_DIR/*
+	chown nginx:nginx $CFG_DIR/*
 
 	if ! test_nginx; then
 		echo "Error in configuration ($CFG_FILE) !"
