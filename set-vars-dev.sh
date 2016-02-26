@@ -15,11 +15,12 @@ export VOL_LETSENCRYPT_SSL="/etc/letsencrypt"
 export NETWORK_NAME="naen"
 export HTTP_HOST_PORT='80'
 export HTTPS_HOST_PORT='443'
+export LETSENCRYPT_EMAIL="coucou@c.moi"
 
 # DB Postgres configuration
-export LANG="fr_FR.UTF-8"
-export AREA="Europe"
-export ZONE="Paris"
+export PG_LANG="fr_FR.UTF-8"
+export PG_AREA="Europe"
+export PG_ZONE="Paris"
 export POSTGRES_PASSWORD="test"
 
 # RSS Commafeed configuration

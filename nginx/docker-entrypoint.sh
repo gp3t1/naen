@@ -45,6 +45,10 @@ function main {
 	chmod 600				 	$CFG_DIR/*
 	chown nginx:nginx $CFG_DIR/*
 
+	if [[ ! -f "$CFG_FILE" ]]; then
+		sleep 10
+	fi
+	
 	if ! test_nginx; then
 		echo "Error in configuration ($CFG_FILE) !"
 		exit 1

@@ -101,7 +101,8 @@ function getRestorationDate {
 
 function set_folders {
 	mkdir -p "$PGDATA" "$WAL_DIR"
-	chmod -R 700 "$PGDATA" "$WAL_DIR"
+	chmod -R 700 "$PGDATA" "$WAL_DIR" 
+	chmod +x "/usr/local/bin/*"
 	chown -R postgres:postgres "$PGDATA" "$WAL_DIR"
 }
 
@@ -122,7 +123,7 @@ function main {
 			fi
 			
 			echo "Using original docker-entrypoint for standard settings"
-			/check-initdb.sh $1
+			/check-initdb.sh postgres
 
 			restore_date=$(getRestorationDate)
 			if [[ -n "$restore_date" ]]; then
