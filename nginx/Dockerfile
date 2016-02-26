@@ -30,7 +30,8 @@ WORKDIR /etc/nginx
 COPY docker-entrypoint.sh 	/
 COPY templates/* 						/etc/nginx/templates/
 COPY bin/*									/usr/local/bin/
-RUN  chmod 700 /docker-entrypoint.sh /usr/local/bin/* \
+RUN  chmod 700 /docker-entrypoint.sh \
+	&& chmod +x /usr/local/bin/* \
 	&& chown -R nginx:nginx /etc/nginx
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
