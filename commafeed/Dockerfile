@@ -9,6 +9,10 @@ ENV PASSWORD					test
 ENV PUBLIC_URL				"https://mydomain.xyz/rss"
 ENV DB_URL						"jdbc:postgresql://naen-postgres:5432/commafeed"
 
+##		VOLUMES --------------------------
+VOLUME ["/etc/commafeed", "/backups"]
+WORKDIR /opt/commafeed
+
 # explicitly set user/group IDs
 RUN groupadd -r commafeed --gid=999 && useradd -r -g commafeed --uid=999 commafeed
 
@@ -26,18 +30,16 @@ RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364
 	&& chown commafeed:commafeed /home/commafeed
 	
 # install commafeed
-RUN  mkdir -p 			/etc/commafeed /opt/commafeed/templates /backups \
+RUN  mkdir -p /etc/commafeed /opt/commafeed/templates /backups \
 	&& curl -Lo /opt/commafeed/commafeed.jar "https://github.com/Athou/commafeed/releases/download/${COMMAFEED_VERSION}/commafeed.jar" \
 	&& curl -Lo /opt/commafeed/templates/commafeed.yml.template "https://raw.githubusercontent.com/Athou/commafeed/${COMMAFEED_VERSION}/config.yml.example" \
-	&& chmod 700 			/opt/commafeed/commafeed.jar \
+	&& chmod 770 /opt/commafeed/commafeed.jar \
 	&& chown -R commafeed:commafeed /opt/commafeed
 
-##		VOLUMES --------------------------
-VOLUME ["/etc/commafeed", "/backups"]
-WORKDIR /opt/commafeed
-
-COPY bin/backup 					/usr/local/bin/backup
-COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY bin/* 								/usr/local/bin/
+COPY docker-entrypoint.sh /
 RUN  chmod 700 /docker-entrypoint.sh /usr/local/bin/backup
+
 ENTRYPOINT ["/docker-entrypoint.sh"]
+
 CMD ["commafeed"]

@@ -6,6 +6,11 @@ CFG_DIR="/etc/commafeed"
 CFG_NAME="commafeed.yml"
 CFG_FILE="$CFG_DIR/$CFG_NAME"
 
+function setRights {
+	chmod 660 "$CFG_FILE"
+	chmod 770 "$APP_FILE"
+	chown commafeed:commafeed "$CFG_FILE" "$APP_FILE"
+}
 
 function setConfig {
   if [[ ! -f $CFG_FILE ]] ;then
@@ -17,18 +22,12 @@ function setConfig {
 					s|password:.*$|password: ${PASSWORD}|" "/opt/commafeed/templates/$CFG_NAME.template" > "$CFG_FILE"
 		echo "Configuration generated in $CFG_FILE"
 	fi
-}
-
-function setRights {
-	chmod 600 "$CFG_FILE"
-	chmod 700 "$APP_FILE"
-	chown commafeed:commafeed "$CFG_FILE" "$APP_FILE"
+	setRights
 }
 
 case $1 in
 	commafeed )
 		setConfig
-		setRights
 		echo "Starting commafeed..."
 		exec gosu commafeed java -Djava.net.preferIPv4Stack=true -jar "$APP_FILE" server "$CFG_FILE"
 		;;

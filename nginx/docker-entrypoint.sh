@@ -32,6 +32,11 @@ function run_nginx {
 	exit $?
 }
 
+function set_permissions {
+	chmod 660				 	$CFG_DIR/*
+	chown nginx:nginx $CFG_DIR/*
+}
+
 function main {
 	if ! check_dhparam; then
 		echo "Error generating dhparam ($DHPARAM_FILE) !"
@@ -42,12 +47,15 @@ function main {
 		exit 1
 	fi
 
-	chmod 600				 	$CFG_DIR/*
-	chown nginx:nginx $CFG_DIR/*
+	set_permissions
 
-	if [[ ! -f "$CFG_FILE" ]]; then
+	local count=0
+	while [[ ! -f "$CFG_FILE" ]]; do
+		echo "Waiting for a config file."
 		sleep 10
-	fi
+		(( count += 1 ))
+		[[ $count -gt 60 ]] && break
+	done
 	
 	if ! test_nginx; then
 		echo "Error in configuration ($CFG_FILE) !"

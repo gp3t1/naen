@@ -15,9 +15,9 @@ RUN  gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E36
 
 RUN 	rm /etc/nginx/conf.d/default.conf \
 	&& 	mv /etc/nginx/nginx.conf /etc/nginx/nginx_original.conf.bak \
-	&&	mkdir -p 							/var/run/nginx /etc/nginx/templates \
-	&&	chmod -R 600 					/var/run/nginx \
-	&& 	chown -R nginx:nginx 	/var/run/nginx /var/log/nginx /usr/sbin/nginx
+	&&	mkdir -p 							/var/run/nginx /var/log/nginx /usr/share/nginx /etc/letsencrypt /backups /etc/nginx/templates \
+	&&	chmod -R 600 					/var/run/nginx /var/log/nginx /usr/share/nginx /etc/letsencrypt /backups /etc/nginx/templates \
+	&& 	chown -R nginx:nginx 	/var/run/nginx /var/log/nginx /usr/share/nginx /etc/letsencrypt /backups /etc/nginx/templates /usr/sbin/nginx
 	
 ##		VOLUMES --------------------------
 # 		from nginx image: ["/var/cache/nginx"]

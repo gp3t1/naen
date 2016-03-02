@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 
 DATE=$(date +%H%M%S)
 TMP_DIR=/etc/nginx/templates
@@ -19,7 +20,8 @@ function stash_upstream {
 	local APP_PORT=$3
 	sed "	s|upstream UPSTREAM {|upstream ${UPSTREAM} {|
 				s|server APP_HOST:APP_PORT;|server ${APP_HOST}:${APP_PORT};|" "$upstream_template" >> "$upstream_tmp"
-	echo "" >> "$upstream_tmp"	
+	echo "" >> "$upstream_tmp"
+	[[ -f $upstream_tmp ]]
 }
 
 function stash_location {
@@ -32,13 +34,17 @@ function stash_location {
 				s|rewrite /PUBLIC_URI/(.*) APP_URI/\$1  break;|rewrite ${PUB_URI}/(.*) ${APP_URI}/$1  break;|
 				s|proxy_pass http://UPSTREAM;|proxy_pass http://${UPSTREAM};|" "$loc_template" >> "$loc_tmp"
 	echo "" >> "$loc_tmp"
+	[[ -f $loc_tmp ]]
 }
 
 function stash_domain {
 	[[ $# -ne 1 ]] && return 1
 	local DOMAIN=$1
+
 	local upstreams=$'\n'$(cat "$upstream_tmp")
 	local locations=$'\n'$(cat "$loc_tmp")
+	upstreams=$(echo "$upstreams" | tr '\n' "\\n")
+	locations=$(echo "$locations" | tr '\n' "\\n")
 	sed "	s|# Domain Configuration for DOMAIN|# Domain Configuration for ${DOMAIN} ${upstreams}|
 				s|server_name DOMAIN;|server_name ${DOMAIN};|
 				s|/var/log/nginx/DOMAIN-access.log|/var/log/nginx/${DOMAIN}-access.log|
@@ -46,6 +52,7 @@ function stash_domain {
 				s|/etc/letsencrypt/live/DOMAIN|/etc/letsencrypt/live/${DOMAIN}|
 				s|# Locations for DOMAIN|# Locations for ${DOMAIN} ${locations}|" "$dom_template" >> "$dom_tmp"
 	echo "" >> "$dom_tmp"
+	[[ -f $dom_tmp ]]
 }
 
 function write_config {
@@ -70,20 +77,28 @@ function main {
 		local APP_HOST=$( echo "$1" | awk -F "=" '{ print $2 }' | awk -F ">" '{ print $2 }' | awk -F ":" '{ print $1 }')
 		local APP_PORT=$( echo "$1" | awk -F "=" '{ print $2 }' | awk -F ">" '{ print $2 }' | awk -F ":" '{ print $2 }' | awk -F "/" '{ print $1 }')
 		local PUB_URI=$( echo "$1" | awk -F "=" '{ print $2 }' | awk -F ">" '{ print $1 }')
-		local APP_URI=$( echo "$1" | awk -F "=" '{ print $2 }' | awk -F ">" '{ print $2 }' | awk -F ":" '{ print $2 }' | awk -F "/" '{ print /$2 }')
+		local APP_URI=/$( echo "$1" | awk -F "=" '{ print $2 }' | awk -F ">" '{ print $2 }' | awk -F ":" '{ print $2 }' | awk -F "/" '{ print $2 }')
 
 		# normalize uris
 		[[ $PUB_URI =~ ^/ ]] || PUB_URI="/$PUB_URI"
+		[[ $PUB_URI =~ ^/.*/$ ]] && PUB_URI=${PUB_URI%%/}
 		[[ $APP_URI =~ ^/ ]] || APP_URI="/$APP_URI"
-		PUB_URI=${PUB_URI%%/*}
-		APP_URI=${APP_URI%%/*}
+		[[ $APP_URI =~ ^.*/$ ]] && APP_URI=${APP_URI%%/}
 
 		echo "$UPSTREAM $APP_HOST $APP_PORT $PUB_URI $APP_URI"
 		stash_upstream "$UPSTREAM" "$APP_HOST" "$APP_PORT"
 		stash_location "$UPSTREAM" "$PUB_URI" "$APP_URI"
+		shift
 	done
-	stash_domain "$DOMAIN" && write_config && exit 0
-	exit 1
+	
+	if [[ $(stash_domain "$DOMAIN") && $(write_config) ]] ; then
+		rm "$dom_tmp" "$loc_tmp" "$upstream_tmp"
+		exit 0
+	else
+		rm "$dom_tmp" "$loc_tmp" "$upstream_tmp"
+		echo "error generating config!"
+		exit 1
+	fi
 }
 
 main "$@"

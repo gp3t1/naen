@@ -1,20 +1,27 @@
 #!/bin/bash
 
-function user_exists{
-	[[ $# -ne 1 ]] && return 1
+function user_exists {
+	if [[ $# -ne 1 ]] ; then
+		return 1
+	fi
 	local user_name=$1
 	gosu postgres psql -c "\du" | awk -F '|' '{ if (NR>3)  print $1 }' | grep -wq "$user_name"
 }
 
 function db_exists {
-	[[ $# -ne 1 ]] && return 1
+	if [[ $# -ne 1 ]] ; then 
+		return 1
+	fi
 	local db_name=$1
 	gosu postgres psql -lqt | awk -F '|' '{ print $1 }' | grep -wq "$db_name"
 }
 
 
 function main {
-	[[ $# -ne 2 ]] && echo "usage : $0 <username> <password>" && exit 1
+	if [[ $# -ne 2 ]] ; then 
+		echo "usage : $0 <username> <password>" 
+		exit 1
+	fi
 
 	USER=$1
 	PASS=$2
@@ -29,8 +36,8 @@ function main {
 
 	gosu postgres /usr/bin/psql -c "GRANT ALL PRIVILEGES ON DATABASE $USER TO $USER;"
 
-
 	db_exists "$USER"
 }
 
+echo "$0 $1"
 main "$@"
