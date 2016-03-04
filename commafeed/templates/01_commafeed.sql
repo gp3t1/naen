@@ -1,0 +1,15 @@
+--create user
+CREATE USER <USER> WITH LOGIN PASSWORD '<PASSWORD>';
+--or update its password
+ALTER USER <USER> WITH PASSWORD '<PASSWORD>';
+
+--change password validity period
+ALTER USER <USER> VALID UNTIL 'infinity';
+
+--create database
+CREATE DATABASE <USER> OWNER <USER>; 
+--ENCODING 'UTF8' LC_COLLATE='fr_FR.UTF8' LC_CTYPE='fr_FR.UTF8' TEMPLATE template0;
+GRANT ALL PRIVILEGES ON DATABASE <USER> TO <USER>;
+
+
+

@@ -102,7 +102,7 @@ function getRestorationDate {
 function set_folders {
 	mkdir -p "$PGDATA" "$WAL_DIR"
 	chmod -R 700 "$PGDATA" "$WAL_DIR" 
-	chmod +x "/usr/local/bin/*"
+	chmod +x /usr/local/bin/*
 	chown -R postgres:postgres "$PGDATA" "$WAL_DIR"
 }
 
@@ -111,18 +111,19 @@ function main {
 	case $1 in
 		postgres )
 			
+			#Configuration of Timezone and locale BEFORE initdb
+			setLocaleAndTZ
+
 			if [[ ! -s "$PGDATA/PG_VERSION" ]]; then
 				echo "Postgres cluster not initialized yet!"
-				#Configuration of Timezone and locale BEFORE initdb
-				setLocaleAndTZ
 				#Move the cluster configuration script (WAL archiving...) to $v_entrypts
 				chmod 700 "$v_entrypts/00_config-cluster.sh" \
-					&& chown postgres:postgres "$v_entrypts/00_config-cluster.sh" \
+					&& chown -R postgres:postgres "$v_entrypts" \
+					&& chmod -R 770 "$v_entrypts" \
 					&& echo "$v_entrypts/00_config-cluster.sh will be run after initdb"
+				# Using original docker-entrypoint for standard settings
+				/check-initdb.sh postgres
 			fi
-			
-			echo "Using original docker-entrypoint for standard settings"
-			/check-initdb.sh postgres
 
 			restore_date=$(getRestorationDate)
 			if [[ -n "$restore_date" ]]; then

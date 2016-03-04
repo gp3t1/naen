@@ -3,12 +3,17 @@
 # Volumes configuration
 VOL_POSTGRES_BACKUPS="/tmp/naen/backups/postgres"
 VOL_POSTGRES_DATA="/tmp/naen/data/postgres"
+VOL_POSTGRES_INIT="/tmp/naen/init/postgres"
+
 VOL_COMMAFEED_BACKUPS="/tmp/naen/backups/commafeed"
 VOL_COMMAFEED_CONFIG="/tmp/naen/config/commafeed"
+VOL_COMMAFEED_LOG="/tmp/naen/log/commafeed"
+
 VOL_NGINX_BACKUPS="/tmp/naen/backups/nginx"
 VOL_NGINX_CONFIG="/tmp/naen/config/nginx"
 VOL_NGINX_LOG="/tmp/naen/log/nginx"
 VOL_NGINX_WWW="/tmp/naen/www"
+
 VOL_LETSENCRYPT_SSL="/etc/letsencrypt"
 
 # Network configuration
@@ -35,8 +40,8 @@ COMMAFEED_NAME="naen-commafeed"
 NGINX_NAME="naen-nginx"
 
 # Test compose file
-if docker-compose --verbose -f docker-compose-dev.yml -p naen config ; then
+#if docker-compose --verbose -f docker-compose-dev.yml -p naen config ; then
 	# Create the services
-	printf "Create following services :\n%s\n" "$( docker-compose -f docker-compose-dev.yml -p naen config --services )"
+#	printf "Create following services :\n%s\n" "$( docker-compose -f docker-compose-dev.yml -p naen config --services )"
 	#docker-compose -f docker-compose-dev.yml -p naen create
-fi
+#fi
