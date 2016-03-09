@@ -3,9 +3,9 @@
 SCRIPT_PATH=$(dirname "$(realpath -s "$0")")
 cd "$SCRIPT_PATH"
 
-DIR="../commafeed"
+DIR="../docker_images/commafeed"
 REPO="gp3t1/commafeed"
-DEPLOY_SCRIPT="../deploy.sh"
+DEPLOY_SCRIPT="../deploy/deploy.sh"
 TAG="$( cat ./.version )-$( egrep '^ENV COMMAFEED_VERSION.*' $DIR/Dockerfile | awk -F ' ' '{ print $3; }' )"
 
 if docker build -q "$@" -t "$REPO:$TAG" "$DIR"; then
