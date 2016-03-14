@@ -5,11 +5,13 @@ cd "$SCRIPT_PATH"
 
 DIR="../docker_images/nginx"
 REPO="gp3t1/nginx"
+DEV_COMPOSE="../deploy/docker-compose-dev.yml"
 DEPLOY_SCRIPT="../deploy/deploy.sh"
 TAG="$( cat ./.version )-$( egrep '^FROM.*' $DIR/Dockerfile | awk -F ':' '{ print $2; }' )"
 
 if docker build -q "$@" -t "$REPO:$TAG" "$DIR"; then
 	echo "built $REPO:$TAG"
+	sed -i "s|image: ${REPO}:.*$|image: $REPO:$TAG|" "$DEV_COMPOSE"
 	sed -i "s|^IMG_NGINX=.*$|IMG_NGINX=$REPO:$TAG|" "$DEPLOY_SCRIPT"
 	exit 0
 fi

@@ -26,6 +26,9 @@ function setConfig {
   				s|currentLogFilename:.*$|currentLogFilename: /var/log/commafeed/commafeed.log|
   				s|archivedLogFilenamePattern:.*$|archivedLogFilenamePattern: /var/log/commafeed/commafeed-%d.log|
 					s|driverClass:.*$|driverClass: org.postgresql.Driver|
+					s|pubsubhubbub: false|pubsubhubbub: true|
+					s|imageProxyEnabled: false|imageProxyEnabled: true|
+					s|announcement:|announcement:\"Rss Reader served by ${DOMAIN}\"|
 					s|url:.*$|url: ${DB_URL}|
 					s|user:.*$|user: ${DB_USER}|
 					s|password:.*$|password: ${DB_PASSWORD}|" "/opt/commafeed/templates/$CFG_NAME.template" > "$CFG_FILE" \
@@ -109,7 +112,7 @@ case $1 in
 		setConfig && set_nginx_server && set_postgres_db && setRights
 		wait_postgres
 		echo "Starting commafeed..."
-		exec gosu commafeed java -Djava.net.preferIPv4Stack=true -jar "$APP_FILE" server "$CFG_FILE"
+		exec gosu commafeed java ${JAVA_OPTS} -Djava.security.egd=file:/dev/urandom -Djava.net.preferIPv4Stack=true -jar "$APP_FILE" server "$CFG_FILE"
 		;;
 	*)
 		exit 1

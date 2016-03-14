@@ -4,6 +4,7 @@ MAINTAINER Jeremy PETIT "jeremy.petit@gmail.com"
 
 ##		ENV VARIABLES --------------------
 ENV COMMAFEED_VERSION 2.3.0
+ENV JAVA_OPTS 				-Xmx128m
 ENV DB_URL						jdbc:postgresql://<postgres>:5432/commafeed
 ENV DB_TIMEOUT				60
 ENV DB_USER						commafeed

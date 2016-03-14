@@ -1,5 +1,39 @@
 version: '2'
+networks:
+  naen:
+    driver: bridge
+volumes:
+  commafeed-backups:  ${VOL_COMMAFEED_BACKUPS}
+  commafeed-config:   ${VOL_COMMAFEED_CONFIG}
+  commafeed-log:      ${VOL_COMMAFEED_LOG}
+  postgres-backups:   ${VOL_POSTGRES_BACKUPS}
+  postgres-data:      ${VOL_POSTGRES_DATA}
+  postgres-init:      ${VOL_POSTGRES_INIT}
+  nginx-backups:      ${VOL_NGINX_BACKUPS}
+  nginx-log:          ${VOL_NGINX_LOG}
+  nginx-www:          ${VOL_NGINX_WWW}
+  nginx-config:       ${VOL_NGINX_CONFIG}
+  letsencrypt-ssl:    ${VOL_LETSENCRYPT_SSL}
 services:
+  naen-commafeed:
+    image: gp3t1/commafeed:0.1-2.2.0
+    container_name: ${COMMAFEED_NAME}
+    hostname: ${COMMAFEED_NAME}
+    command: commafeed
+    networks:
+      - naen
+    volumes:
+      - commafeed-backups:  /backups
+      - commafeed-config:   /etc/commafeed
+      - commafeed-log:      /var/log/commafeed
+      - nginx-config:       /etc/nginx/conf.d:z
+      - postgres-init:      /docker-entrypoint-initdb.d:z
+    environment:
+      - DOMAIN:       ${DOMAIN}
+      - URI:          ${RSS_URI}
+      - DB_URL:       jdbc:postgresql://${POSTGRES_NAME}:5432/${RSS_USER}
+      - DB_USER:      ${RSS_USER}
+      - DB_PASSWORD:  ${RSS_PASSWORD}
   naen-postgres:
     image: gp3t1/postgres-hb:0.1-9.5
     container_name: ${POSTGRES_NAME}
@@ -8,30 +42,16 @@ services:
     networks:
       - naen
     volumes:
-      - postgres-backups:/backups
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-backups: /backups
+      - postgres-data:    /var/lib/postgresql/data
+      - postgres-init:    /docker-entrypoint-initdb.d:z
     environment:
-      - LANG=${LANG}
-      - AREA=${AREA}
-      - ZONE=${ZONE}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-  naen-commafeed:
-    image: gp3t1/commafeed:0.1-2.2.0
-    container_name: ${COMMAFEED_NAME}
-    hostname: ${COMMAFEED_NAME}
-    command: commafeed
+      - LANG:               ${LANG}
+      - AREA:               ${AREA}
+      - ZONE:               ${ZONE}
+      - POSTGRES_PASSWORD:  ${POSTGRES_PASSWORD}
     depends_on:
-      - ${POSTGRES_NAME}
-    networks:
-      - naen
-    volumes:
-      - commafeed-backups:/backups
-      - commafeed-config:/etc/commafeed
-    environment:
-      - PUBLIC_URL=https://${DOMAIN}${RSS_URI}
-      - DB_URL=jdbc:postgresql://${POSTGRES_NAME}:5432/${RSS_USER}
-      - USER=${RSS_USER}
-      - PASSWORD=${RSS_PASSWORD}
+      - ${COMMAFEED_NAME}
   naen-nginx:
     image: gp3t1/nginx:0.1-1.9
     container_name: ${NGINX_NAME}
@@ -43,21 +63,12 @@ services:
       - "${HTTP_HOST_PORT}:80"
       - "${HTTPS_HOST_PORT}:443"
     volumes:
-      - nginx-backups:/backups
-      - nginx-config:/etc/nginx/conf.d
-      - letsencrypt-ssl:/etc/letsencrypt
-      - nginx-log:/var/log/nginx
-      - nginx-www:/usr/share/nginx
-networks:
-  naen:
-    driver: bridge
-volumes:
-  postgres-backups: ${VOL_POSTGRES_BACKUPS}
-  postgres-data: ${VOL_POSTGRES_DATA}
-  commafeed-backups: ${VOL_COMMAFEED_BACKUPS}
-  commafeed-config: ${VOL_COMMAFEED_CONFIG}
-  nginx-backups: ${VOL_NGINX_BACKUPS}
-  nginx-log: ${VOL_NGINX_LOG}
-  nginx-www: ${VOL_NGINX_WWW}
-  nginx-config: ${VOL_NGINX_CONFIG}
-  letsencrypt-ssl: ${VOL_LETSENCRYPT_SSL}
+      - nginx-backups:    /backups
+      - nginx-config:     /etc/nginx/conf.d:z
+      - letsencrypt-ssl:  /etc/letsencrypt
+      - nginx-log:        /var/log/nginx
+      - nginx-www:        /usr/share/nginx
+    environment:
+      - LETSENCRYPT_EMAIL:  "$LETSENCRYPT_EMAIL"
+    depends_on:
+      - ${COMMAFEED_NAME}

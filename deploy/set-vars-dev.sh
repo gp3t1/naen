@@ -26,22 +26,51 @@ LETSENCRYPT_EMAIL="coucou@c.moi"
 PG_LANG="fr_FR.UTF-8"
 PG_AREA="Europe"
 PG_ZONE="Paris"
-POSTGRES_PASSWORD="test"
 
 # RSS Commafeed configuration
 DOMAIN="localhost"
 RSS_URI="/rss"
 RSS_USER="commafeed"
-RSS_PASSWORD="test"
+
 
 # Docker misc
 POSTGRES_NAME="naen-postgres"
 COMMAFEED_NAME="naen-commafeed"
 NGINX_NAME="naen-nginx"
 
+function askPasswordTwice {
+	local tmp_pass1=""
+	local tmp_pass2=""
+  local retry=0
+	if [[ $# -lt 1 ]]; then
+		echo ""
+		return 1
+	fi
+
+	stty -echo
+	while [[ -z "$tmp_pass1" || -z "$tmp_pass2" || "$tmp_pass1" != "$tmp_pass2" ]]; do
+		if [[ $retry -gt 0 ]]; then
+			printf "WARNING : passwords don't match. Please type again...\n" 1>&2
+		fi
+		printf "Password for %s : " "$1" 1>&2
+		read tmp_pass1
+		printf "\n" 1>&2
+		printf "Password for %s (verification) : " "$1" 1>&2
+		read tmp_pass2
+		printf "\n" 1>&2
+		retry=$(( retry + 1 ))
+	done
+	stty echo
+	echo "$tmp_pass1"
+	return 0
+}
+
+POSTGRES_PASSWORD=$(askPasswordTwice "postgres")
+RSS_PASSWORD=$(askPasswordTwice "$RSS_USER")
+
 # Test compose file
-#if docker-compose --verbose -f docker-compose-dev.yml -p naen config ; then
+if docker-compose --verbose -f docker-compose-dev.yml -p naen config ; then
 	# Create the services
-#	printf "Create following services :\n%s\n" "$( docker-compose -f docker-compose-dev.yml -p naen config --services )"
-	#docker-compose -f docker-compose-dev.yml -p naen create
-#fi
+	printf "Create following services :\n%s\n" "$( docker-compose -f docker-compose-dev.yml -p naen config --services )"
+	docker-compose -f docker-compose-dev.yml -p naen create
+fi
