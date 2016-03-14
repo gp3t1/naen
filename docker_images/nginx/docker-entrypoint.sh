@@ -82,6 +82,17 @@ function write_configfile {
 	  include ${CFG_APPS}/*.conf;
 
 	}
+
+	# All http traffic will be reroute to https
+	server {
+    listen 80;
+    server_name *;
+    access_log /var/log/nginx/http-access.log combined buffer=16k;
+    error_log  /var/log/nginx/http-error.log  warn;
+    location / {
+      return 301 https://$host$request_uri;
+    }
+  }
 	EOF
 	[[ -f "$CFG_FILE" ]]
 }
