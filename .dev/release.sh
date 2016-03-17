@@ -4,7 +4,6 @@ DEV_COMPOSE="../deploy/docker-compose.yml"
 SCRIPT_PATH=$(dirname "$(realpath -s "$0")")
 cd "$SCRIPT_PATH"
 
-cd ..
 git status
 echo "Do you want to continue?[yn]"
 read resp
