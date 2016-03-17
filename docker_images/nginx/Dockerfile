@@ -25,14 +25,14 @@ WORKDIR /etc/nginx
 
 ##		ENV VARIABLES --------------------
 #			FROM nginx : NGINX_VERSION
-ENV PID 							/var/run/nginx/pid
-ENV TIMEOUT_CFG 			125
+ENV PID /var/run/nginx/pid
+ENV TIMEOUT_CFG 125
 ENV LETSENCRYPT_EMAIL ""
-ENV PATH 							"$PATH:/var/lib/letsencrypt"
+ENV PATH "$PATH:/var/lib/letsencrypt"
 
-COPY docker-entrypoint.sh 			/
-COPY bin/*											/usr/local/bin/
-RUN  chmod +x /usr/local/bin/* 	/docker-entrypoint.sh
+COPY docker-entrypoint.sh /
+COPY bin/* /usr/local/bin/
+RUN  chmod +x /usr/local/bin/* /docker-entrypoint.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["nginx"]
