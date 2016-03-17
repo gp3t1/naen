@@ -4,9 +4,13 @@ DEV_COMPOSE="../deploy/docker-compose.yml"
 SCRIPT_PATH=$(dirname "$(realpath -s "$0")")
 cd "$SCRIPT_PATH"
 
+function getc {
+  IFS= read -r -n1 -d '' "$@"
+}
+
 git status
 echo "Do you want to continue?[yn]"
-read resp
+getc resp
 [[ $resp = "n" || $resp = "N" ]] && exit 0
 
 
