@@ -9,7 +9,7 @@ function getc {
 }
 
 git status
-echo "Do you want to continue?[yn]"
+echo -n "Do you want to continue?[yn]"
 getc resp
 [[ $resp = "n" || $resp = "N" ]] && exit 0
 
