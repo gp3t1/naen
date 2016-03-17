@@ -10,13 +10,11 @@ read resp
 [[ $resp = "n" || $resp = "N" ]] && exit 0
 
 
-local version=""
 while [[ -z $version ]]; do
 	echo -n "version: "
 	read version
 done
 
-local message=""
 while [[ -z $message ]]; do
 	echo -n "message: "
 	read message
