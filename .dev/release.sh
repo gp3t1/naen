@@ -15,12 +15,12 @@ getc resp
 
 
 while [[ -z $version ]]; do
-	echo -n "version: "
+	echo -n "\nversion: "
 	read version
 done
 
 while [[ -z $message ]]; do
-	echo -n "message: "
+	echo -n "\nmessage: "
 	read message
 done
 
