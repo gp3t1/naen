@@ -9,18 +9,18 @@ function getc {
 }
 
 git status
-echo -n "Do you want to continue?[yn]"
+echo -en "\nDo you want to continue?[yn]"
 getc resp
 [[ $resp = "n" || $resp = "N" ]] && exit 0
 
 
 while [[ -z $version ]]; do
-	echo -n "\nversion: "
+	echo -en "\nversion: "
 	read version
 done
 
 while [[ -z $message ]]; do
-	echo -n "\nmessage: "
+	echo -en "\nmessage: "
 	read message
 done
 
