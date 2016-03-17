@@ -21,5 +21,5 @@ while [[ -z $message ]]; do
 	echo -n "message: "
 	read message
 done
-
+git push && git push github master
 git tag -a "$version" -m "$message" && git push origin "$version" && git push github "$version"
