@@ -16,7 +16,7 @@ volumes:
   letsencrypt-ssl:    ${VOL_LETSENCRYPT_SSL}
 services:
   naen-commafeed:
-    image: gp3t1/commafeed:dev-0.1-2.3.0
+    image: gp3t1/commafeed:release-0.5
     container_name: ${COMMAFEED_NAME}
     hostname: ${COMMAFEED_NAME}
     command: commafeed
@@ -37,7 +37,7 @@ services:
       - ADMIN_PASSWORD: ${RSS_ADMIN_PASSWORD}
       - ADMIN_EMAIL:    ${RSS_ADMIN_EMAIL}
   naen-postgres:
-    image: gp3t1/postgres-hb:dev-0.1-9.5
+    image: gp3t1/postgres-hb:release-0.5
     container_name: ${POSTGRES_NAME}
     hostname: ${POSTGRES_NAME}
     command: postgres
@@ -55,7 +55,7 @@ services:
     depends_on:
       - ${COMMAFEED_NAME}
   naen-nginx:
-    image: gp3t1/nginx:dev-0.1-1.9
+    image: gp3t1/nginx:release-0.5
     container_name: ${NGINX_NAME}
     hostname: ${NGINX_NAME}
     command: nginx
