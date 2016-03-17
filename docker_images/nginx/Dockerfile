@@ -28,7 +28,7 @@ WORKDIR /etc/nginx
 ENV PID 							/var/run/nginx/pid
 ENV TIMEOUT_CFG 			125
 ENV LETSENCRYPT_EMAIL ""
-ENV PATH 							$PATH:/var/lib/letsencrypt
+ENV PATH 							"$PATH:/var/lib/letsencrypt"
 
 COPY docker-entrypoint.sh 			/
 COPY bin/*											/usr/local/bin/

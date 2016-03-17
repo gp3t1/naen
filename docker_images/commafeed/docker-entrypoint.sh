@@ -111,7 +111,9 @@ case $1 in
 		[[ $URI =~ ^/ ]] || URI="/$URI" && export URI
 		setConfig && set_nginx_server && set_postgres_db && setRights
 		wait_postgres
+
 		echo "Starting commafeed..."
+		[[ -f /tmp/setAdminPass.remove ]] && nohup set_admin_password &
 		exec gosu commafeed java ${JAVA_OPTS} -Djava.security.egd=file:/dev/urandom -Djava.net.preferIPv4Stack=true -jar "$APP_FILE" server "$CFG_FILE"
 		;;
 	*)

@@ -11,6 +11,8 @@ ENV DB_USER						commafeed
 ENV DB_PASSWORD				changeme
 ENV DOMAIN						changeme
 ENV URI								/rss
+ENV ADMIN_PASSWORD		changeme
+ENV ADMIN_EMAIL				changeme
 
 
 ##		VOLUMES --------------------------
@@ -40,7 +42,8 @@ RUN  mkdir -p 	/etc/commafeed /opt/commafeed/templates /backups /var/log/commafe
 	&& curl -Lo 	/opt/commafeed/commafeed.jar "https://github.com/Athou/commafeed/releases/download/${COMMAFEED_VERSION}/commafeed.jar" \
 	&& curl -Lo 	/opt/commafeed/templates/commafeed.yml.template "https://raw.githubusercontent.com/Athou/commafeed/${COMMAFEED_VERSION}/config.yml.example" \
 	&& chmod 770 	/opt/commafeed/commafeed.jar \
-	&& chown -R 	commafeed:commafeed /opt/commafeed
+	&& chown -R 	commafeed:commafeed /opt/commafeed \
+	&& touch 			/tmp/setAdminPass.remove
 
 COPY bin/* 								/usr/local/bin/
 COPY templates/*			 		/templates/

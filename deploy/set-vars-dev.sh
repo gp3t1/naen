@@ -1,42 +1,55 @@
 #/bin/sh
 
-# Volumes configuration
-VOL_POSTGRES_BACKUPS="/tmp/naen/backups/postgres"
-VOL_POSTGRES_DATA="/tmp/naen/data/postgres"
-VOL_POSTGRES_INIT="/tmp/naen/init/postgres"
+function user_settings {
+	#You can safely edit yout configuration in this function
 
-VOL_COMMAFEED_BACKUPS="/tmp/naen/backups/commafeed"
-VOL_COMMAFEED_CONFIG="/tmp/naen/config/commafeed"
-VOL_COMMAFEED_LOG="/tmp/naen/log/commafeed"
+	# Postgres Volumes
+	VOL_POSTGRES_BACKUPS="/tmp/naen/backups/postgres"
+	VOL_POSTGRES_DATA="/tmp/naen/data/postgres"
+	VOL_POSTGRES_INIT="/tmp/naen/init/postgres"
+	# Commafeed Volumes
+	VOL_COMMAFEED_BACKUPS="/tmp/naen/backups/commafeed"
+	VOL_COMMAFEED_CONFIG="/tmp/naen/config/commafeed"
+	VOL_COMMAFEED_LOG="/tmp/naen/log/commafeed"
+	# Nginx Volumes
+	VOL_NGINX_BACKUPS="/tmp/naen/backups/nginx"
+	VOL_NGINX_CONFIG="/tmp/naen/config/nginx"
+	VOL_NGINX_LOG="/tmp/naen/log/nginx"
+	VOL_NGINX_WWW="/tmp/naen/www"
+	# SSL Certificates Volume
+	VOL_LETSENCRYPT_SSL="/etc/letsencrypt"
 
-VOL_NGINX_BACKUPS="/tmp/naen/backups/nginx"
-VOL_NGINX_CONFIG="/tmp/naen/config/nginx"
-VOL_NGINX_LOG="/tmp/naen/log/nginx"
-VOL_NGINX_WWW="/tmp/naen/www"
+	# Network configuration
+	NETWORK_NAME="naen"
+	HTTP_HOST_PORT='80'
+	HTTPS_HOST_PORT='443'
 
-VOL_LETSENCRYPT_SSL="/etc/letsencrypt"
+	# DB Postgres configuration
+	PG_LANG="fr_FR.UTF-8"
+	PG_AREA="Europe"
+	PG_ZONE="Paris"
+	# RSS Commafeed configuration
+	DOMAIN="localhost"
+	RSS_URI="/rss"
+	RSS_USER="commafeed"
+	RSS_ADMIN_EMAIL="changeme@toto.com"
+	# SSL Configuration
+	LETSENCRYPT_EMAIL="changeme@toto.com"
 
-# Network configuration
-NETWORK_NAME="naen"
-HTTP_HOST_PORT='80'
-HTTPS_HOST_PORT='443'
-LETSENCRYPT_EMAIL="coucou@c.moi"
+	# Docker Containers Names
+	POSTGRES_NAME="naen-postgres"
+	COMMAFEED_NAME="naen-commafeed"
+	NGINX_NAME="naen-nginx"
+}
 
-# DB Postgres configuration
-PG_LANG="fr_FR.UTF-8"
-PG_AREA="Europe"
-PG_ZONE="Paris"
+function askPasswords {
+	# Postgres Configuration
+	POSTGRES_PASSWORD=$(askPasswordTwice "postgres (postgres user)")
+	RSS_PASSWORD=$(askPasswordTwice "$RSS_USER (postgres user)")
+	# Commafeed Configuration
+	RSS_ADMIN_PASSWORD=$(askPasswordTwice "admin (commafeed usser)")	
+}
 
-# RSS Commafeed configuration
-DOMAIN="localhost"
-RSS_URI="/rss"
-RSS_USER="commafeed"
-
-
-# Docker misc
-POSTGRES_NAME="naen-postgres"
-COMMAFEED_NAME="naen-commafeed"
-NGINX_NAME="naen-nginx"
 
 function askPasswordTwice {
 	local tmp_pass1=""
@@ -65,12 +78,42 @@ function askPasswordTwice {
 	return 0
 }
 
-POSTGRES_PASSWORD=$(askPasswordTwice "postgres")
-RSS_PASSWORD=$(askPasswordTwice "$RSS_USER")
+function simpleCheck {
+	POSTGRES_PATHS="\"$VOL_POSTGRES_BACKUPS\" \"$VOL_POSTGRES_DATA\" \"$VOL_POSTGRES_INIT\""
+	COMMAFEED_PATHS="\"$VOL_COMMAFEED_BACKUPS\" \"$VOL_COMMAFEED_CONFIG\" \"$VOL_COMMAFEED_LOG\""
+	NGINX_PATHS="\"$VOL_NGINX_BACKUPS\" \"$VOL_NGINX_CONFIG\" \"$VOL_NGINX_LOG\" \"$VOL_NGINX_WWW\""
+	OTHER_PATHS="\"$VOL_LETSENCRYPT_SSL\""
+	STRINGS="\"$NETWORK_NAME\" \"$HTTP_HOST_PORT\" \"$HTTPS_HOST_PORT\" \"$PG_LANG\" \"$PG_AREA\" \"$PG_ZONE\" \"$DOMAIN\" \"$RSS_URI\" \"$RSS_USER\" \"$POSTGRES_NAME\" \"$COMMAFEED_NAME\" \"$NGINX_NAME\""
+	EMAILS="\"$RSS_ADMIN_EMAIL\" \"$LETSENCRYPT_EMAIL\""
+	PASSWORDS="\"$POSTGRES_PASSWORD\" \"$RSS_PASSWORD\" \"$RSS_ADMIN_PASSWORD\""
+	for path in $POSTGRES_PATHS $COMMAFEED_PATHS $NGINX_PATHS $OTHER_PATHS; do
+		if [[ -z "$path" || "$path" == "\"\"" ]]; then
+			echo "found volume with empty path!"
+			exit 1
+		fi
+		[[ ! -e "$path" ]] && mkdir -m 700 -v -p "$path"
+		if [[ ! -d "$path" || ! -w "$path" ]]; then
+			echo "$path not writeable!"
+			exit 1
+		fi
+	done
+	for string in $STRINGS $EMAILS $PASSWORDS; do
+		if [[ -z "$string" || "$string" == "\"\"" ]]; then
+			echo "found an empty config variable!"
+			exit 1
+		fi
+	done
+}
 
-# Test compose file
-if docker-compose --verbose -f docker-compose-dev.yml -p naen config ; then
-	# Create the services
-	printf "Create following services :\n%s\n" "$( docker-compose -f docker-compose-dev.yml -p naen config --services )"
-	docker-compose -f docker-compose-dev.yml -p naen create
-fi
+function main {
+	user_settings
+	askPasswords
+	# Test compose file
+	if docker-compose --verbose -f docker-compose-dev.yml -p naen config ; then
+		# Create the services
+		printf "Create following services :\n%s\n" "$( docker-compose -f docker-compose-dev.yml -p naen config --services )"
+		docker-compose -f docker-compose-dev.yml -p naen create
+	fi	
+}
+
+

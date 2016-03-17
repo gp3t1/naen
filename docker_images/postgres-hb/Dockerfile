@@ -24,7 +24,7 @@ COPY bin/* 												/usr/local/bin/
 COPY docker-entrypoint-initdb.d/* /docker-entrypoint-initdb.d/
 COPY docker-entrypoint.sh 				/
 
-WORKDIR $DATA_VOL
+WORKDIR "$DATA_VOL"
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
