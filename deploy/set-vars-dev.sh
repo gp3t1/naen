@@ -87,7 +87,7 @@ function simpleCheck {
 	EMAILS="\"$RSS_ADMIN_EMAIL\" \"$LETSENCRYPT_EMAIL\""
 	PASSWORDS="\"$POSTGRES_PASSWORD\" \"$RSS_PASSWORD\" \"$RSS_ADMIN_PASSWORD\""
 	for path in $POSTGRES_PATHS $COMMAFEED_PATHS $NGINX_PATHS $OTHER_PATHS; do
-		if [[ -z "$path" || "$path" == "\"\"" ]]; then
+		if [[ -z "$path" || "$path" = "\"\"" ]]; then
 			echo "found volume with empty path!"
 			exit 1
 		fi
@@ -98,7 +98,7 @@ function simpleCheck {
 		fi
 	done
 	for string in $STRINGS $EMAILS $PASSWORDS; do
-		if [[ -z "$string" || "$string" == "\"\"" ]]; then
+		if [[ -z "$string" || "$string" = "\"\"" ]]; then
 			echo "found an empty config variable!"
 			exit 1
 		fi
