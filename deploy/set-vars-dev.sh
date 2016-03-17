@@ -106,13 +106,14 @@ function simpleCheck {
 }
 
 function main {
+	COMPOSE_FILE=./docker-compose.yml
 	user_settings
 	askPasswords
 	# Test compose file
-	if docker-compose --verbose -f docker-compose-dev.yml -p naen config ; then
+	if docker-compose --verbose -f $COMPOSE_FILE -p naen config ; then
 		# Create the services
-		printf "Create following services :\n%s\n" "$( docker-compose -f docker-compose-dev.yml -p naen config --services )"
-		docker-compose -f docker-compose-dev.yml -p naen create
+		printf "Create following services :\n%s\n" "$( docker-compose -f $COMPOSE_FILE -p naen config --services )"
+		docker-compose -f $COMPOSE_FILE -p naen create
 	fi	
 }
 
